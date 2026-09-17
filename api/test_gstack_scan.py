@@ -9,7 +9,7 @@ from app.models.schema import AnalysisRequest, SynthesisRequest, RemediationRequ
 from synthesizer import synthesizer
 from healing_agent import healing_agent
 
-async def test_gstack_cartography():
+async def _async_test_gstack_cartography():
     print("[TEST 1] Cartography Scan on garrytan/gstack...")
     req = AnalysisRequest(
         target="https://github.com/garrytan/gstack",
@@ -53,9 +53,13 @@ async def test_gstack_cartography():
     assert rem_res.pr_url is not None
     print(f"  -> Self-Healing Success! PR Opened: {rem_res.pr_url}")
 
+def test_gstack_cartography():
+    asyncio.run(_async_test_gstack_cartography())
+
 if __name__ == "__main__":
     print("=" * 65)
     print("VESTIGIUM: GSTACK & AWESOME-SKILLS PIPELINE VALIDATION")
     print("=" * 65)
-    asyncio.run(test_gstack_cartography())
+    test_gstack_cartography()
+
     print("\nALL GSTACK & SKILLS TESTS COMPLETED SUCCESSFULLY!")
