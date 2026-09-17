@@ -34,27 +34,28 @@ export const CyberHero3D: React.FC = () => {
     const clusterGroup = new THREE.Group();
     scene.add(clusterGroup);
 
-    // A. Holographic Wireframe Icosahedron Core
+    // A. Holographic Wireframe Icosahedron Core (Obsidian Magma Ember)
     const icoGeo = new THREE.IcosahedronGeometry(68, 2);
     const icoMat = new THREE.MeshBasicMaterial({
-      color: 0x00f0ff,
+      color: 0xff5a1f,
       wireframe: true,
       transparent: true,
-      opacity: 0.14,
+      opacity: 0.16,
     });
     const icoMesh = new THREE.Mesh(icoGeo, icoMat);
     clusterGroup.add(icoMesh);
 
-    // B. Inner Glowing Particle Cloud (3,200 points)
+    // B. Inner Glowing Particle Cloud (3,200 points with Magma & Ember gradients)
     const particleCount = 3200;
     const particleGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
-    const cCyan = new THREE.Color(0x00f0ff);
-    const cBlue = new THREE.Color(0x38bdf8);
-    const cPurple = new THREE.Color(0xa855f7);
-    const cCrimson = new THREE.Color(0xff3366);
+    const cFlame = new THREE.Color(0xff5a1f);
+    const cEmber = new THREE.Color(0xb3441a);
+    const cCoral = new THREE.Color(0xff8a50);
+    const cCrimson = new THREE.Color(0xff2a1f);
+    const cBone = new THREE.Color(0xf5efe9);
 
     for (let i = 0; i < particleCount; i++) {
       // Golden Spiral Spherical distribution with random depth dispersion
@@ -71,11 +72,12 @@ export const CyberHero3D: React.FC = () => {
       positions[i * 3 + 2] = z;
 
       // Color variation based on depth & index
-      let c = cCyan;
+      let c = cFlame;
       const rand = Math.random();
-      if (rand > 0.82) c = cCrimson;
-      else if (rand > 0.6) c = cPurple;
-      else if (rand > 0.3) c = cBlue;
+      if (rand > 0.8) c = cCrimson;
+      else if (rand > 0.55) c = cCoral;
+      else if (rand > 0.35) c = cEmber;
+      else if (rand > 0.2) c = cBone;
 
       colors[i * 3] = c.r;
       colors[i * 3 + 1] = c.g;
@@ -90,18 +92,18 @@ export const CyberHero3D: React.FC = () => {
       size: 2.2,
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
     });
     const particlePoints = new THREE.Points(particleGeo, particleMat);
     clusterGroup.add(particlePoints);
 
-    // C. Orbital Cyber Rings (Rotating Toruses)
+    // C. Orbital Cyber Rings (Rotating Toruses in Magma Flame & Volcanic Crimson)
     const ringGeo1 = new THREE.TorusGeometry(84, 0.45, 16, 120);
     const ringMat1 = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
+      color: 0xff5a1f,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.45,
       wireframe: true,
     });
     const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
@@ -111,9 +113,9 @@ export const CyberHero3D: React.FC = () => {
 
     const ringGeo2 = new THREE.TorusGeometry(96, 0.35, 16, 120);
     const ringMat2 = new THREE.MeshBasicMaterial({
-      color: 0xa855f7,
+      color: 0xff8a50,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.32,
       wireframe: true,
     });
     const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
@@ -142,7 +144,7 @@ export const CyberHero3D: React.FC = () => {
 
       const isCVE = i % 4 === 0;
       const isAsset = i % 5 === 0;
-      const bColor = isCVE ? 0xff3366 : isAsset ? 0xa855f7 : 0x00f0ff;
+      const bColor = isCVE ? 0xff2a1f : isAsset ? 0xd946ef : 0xff5a1f;
 
       const bMat = new THREE.MeshBasicMaterial({
         color: bColor,
@@ -173,9 +175,9 @@ export const CyberHero3D: React.FC = () => {
     const laserLinesGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
     laserLinesGeo.setIndex(lineIndices);
     const laserLinesMat = new THREE.LineBasicMaterial({
-      color: 0x00f0ff,
+      color: 0xff5a1f,
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.35,
       blending: THREE.AdditiveBlending,
     });
     const laserLinesMesh = new THREE.LineSegments(laserLinesGeo, laserLinesMat);
@@ -249,10 +251,10 @@ export const CyberHero3D: React.FC = () => {
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 flex items-center justify-center">
-      {/* Cinematic Luminous Glows */}
-      <div className="absolute w-[650px] h-[650px] rounded-full bg-cyan-500/15 blur-[140px] -top-24 -right-24 pointer-events-none" />
-      <div className="absolute w-[550px] h-[550px] rounded-full bg-purple-600/12 blur-[120px] bottom-0 -left-24 pointer-events-none" />
-      <div className="absolute w-[400px] h-[400px] rounded-full bg-red-500/10 blur-[90px] top-1/2 left-1/3 pointer-events-none" />
+      {/* Cinematic Obsidian Magma Luminous Glows */}
+      <div className="absolute w-[650px] h-[650px] rounded-full bg-orange-600/15 blur-[140px] -top-24 -right-24 pointer-events-none" />
+      <div className="absolute w-[550px] h-[550px] rounded-full bg-red-700/15 blur-[130px] bottom-0 -left-24 pointer-events-none" />
+      <div className="absolute w-[450px] h-[450px] rounded-full bg-[#ff5a1f]/12 blur-[100px] top-1/2 left-1/3 pointer-events-none" />
 
       {/* Three.js Canvas Container */}
       <div

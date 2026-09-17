@@ -9,34 +9,34 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative z-10 border-t border-white/10 bg-[#04060a] py-12 px-4">
+    <footer className="relative z-10 border-t border-[#ff5a1f]/20 bg-[#050302] py-12 px-4">
       <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)]">
-            <Shield className="w-4 h-4 fill-slate-950" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff5a1f] to-[#ff2a1f] flex items-center justify-center text-white font-bold shadow-[0_0_15px_rgba(255,90,31,0.45)]">
+            <Shield className="w-4 h-4 fill-white" />
           </div>
           <div>
-            <div className="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+            <div className="text-sm font-bold tracking-tight text-[#f5efe9] flex items-center gap-2">
               <span>VESTIGIUM</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                v2.4 Core
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#ff5a1f]/20 text-[#ff8a50] border border-[#ff5a1f]/40">
+                MAGMA // v2.4
               </span>
             </div>
-            <p className="text-xs text-slate-500">GraphRAG Attack-Surface Cartographer</p>
+            <p className="text-xs text-[#f5efe9]/50">GraphRAG Attack-Surface Cartographer</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 text-xs text-slate-400 font-mono">
+        <div className="flex items-center gap-6 text-xs text-[#f5efe9]/60 font-mono">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#ff5a1f] animate-pulse"></span>
             CYBER INTELLIGENCE ENGINE ONLINE
           </span>
-          <span className="hidden sm:inline text-slate-700">|</span>
+          <span className="hidden sm:inline text-[#571708]">|</span>
           <a
             href="https://github.com/garrytan/gstack"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-cyan-300 transition-colors flex items-center gap-1.5"
+            className="hover:text-[#ff8a50] transition-colors flex items-center gap-1.5"
           >
             <GitFork className="w-3.5 h-3.5" />
             <span>Repository Telemetry</span>
@@ -45,13 +45,14 @@ export const Footer: React.FC = () => {
 
         <button
           onClick={scrollToTop}
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900 px-4 py-2 text-xs font-mono text-slate-300 hover:border-cyan-500/40 hover:text-white transition-all cursor-pointer"
+          className="flex items-center gap-2 rounded-full border border-[#ff5a1f]/25 bg-[#140604] px-4 py-2 text-xs font-mono text-[#f5efe9]/80 hover:border-[#ff5a1f] hover:text-[#ff8a50] transition-all cursor-pointer shadow-[0_0_10px_rgba(255,90,31,0.2)]"
         >
           <span>Back to Top</span>
-          <ArrowUp className="w-3.5 h-3.5 text-cyan-400" />
+          <ArrowUp className="w-3.5 h-3.5 text-[#ff5a1f]" />
         </button>
       </div>
     </footer>
   );
 };
+
 

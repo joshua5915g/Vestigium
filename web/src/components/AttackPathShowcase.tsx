@@ -211,27 +211,27 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
     <section className="relative z-10 mx-auto max-w-6xl px-4 py-16">
       {/* Section Header */}
       <div className="flex flex-col items-center text-center mb-10">
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-950/20 px-3.5 py-1 text-xs font-mono text-red-300">
-          <Zap className="w-3.5 h-3.5 text-red-400" />
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-[#ff5a1f]/40 bg-[#2a0a04]/50 px-3.5 py-1 text-xs font-mono text-[#ff8a50]">
+          <Zap className="w-3.5 h-3.5 text-[#ff5a1f]" />
           <span>MULTI-HOP GRAPH TRAVERSAL</span>
         </div>
-        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#f5efe9] sm:text-4xl">
           Visual Attack Path Cartography
         </h2>
-        <p className="mt-3 max-w-2xl text-sm text-slate-400">
+        <p className="mt-3 max-w-2xl text-sm text-[#f5efe9]/70">
           Vestigium traces the full chain from entrypoint call-site to crown jewel asset, proving exploitability instead of just listing isolated packages.
         </p>
 
         {/* Scenario Switcher Tabs */}
-        <div className="mt-6 inline-flex rounded-xl border border-white/10 bg-slate-900/90 p-1 backdrop-blur-md">
+        <div className="mt-6 inline-flex rounded-xl border border-[#ff5a1f]/25 bg-[#140604]/90 p-1 backdrop-blur-md">
           {Object.entries(SCENARIOS_DATA).map(([key, data]) => (
             <button
               key={key}
               onClick={() => setSelectedScenarioKey(key)}
               className={`rounded-lg px-4 py-2 text-xs font-mono transition-all cursor-pointer ${
                 selectedScenarioKey === key
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_rgba(0,240,255,0.2)]"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#ff5a1f]/25 text-[#ff8a50] border border-[#ff5a1f]/50 shadow-[0_0_15px_rgba(255,90,31,0.3)]"
+                  : "text-[#f5efe9]/60 hover:text-white"
               }`}
             >
               {data.name}
@@ -247,7 +247,7 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
           return (
             <div
               key={idx}
-              className="glass-card rounded-2xl p-4 flex flex-col justify-between relative group border border-white/10 hover:border-cyan-400/50 hover:shadow-[0_20px_40px_-15px_rgba(0,240,255,0.25)] transition-all duration-300 transform hover:-translate-y-2 hover:rotate-1 cursor-default"
+              className="glass-card rounded-2xl p-4 flex flex-col justify-between relative group border border-white/10 hover:border-[#ff5a1f]/60 hover:shadow-[0_20px_40px_-15px_rgba(255,90,31,0.35)] transition-all duration-300 transform hover:-translate-y-2 hover:rotate-1 cursor-default"
             >
               {/* Dynamic Luminous Rim Glow on Hover */}
               <div 
@@ -259,7 +259,7 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
 
               {/* Step indicator */}
               <div className="flex items-center justify-between mb-3 relative z-10">
-                <span className="font-mono text-[10px] text-slate-500 font-bold tracking-wider">
+                <span className="font-mono text-[10px] text-[#f5efe9]/50 font-bold tracking-wider">
                   NODE // {step.step}
                 </span>
                 <span
@@ -286,18 +286,18 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
                 >
                   <Icon className="w-4 h-4" />
                 </div>
-                <h4 className="text-sm font-bold text-white tracking-tight mb-1 truncate group-hover:text-cyan-200 transition-colors">
+                <h4 className="text-sm font-bold text-[#f5efe9] tracking-tight mb-1 truncate group-hover:text-[#ff8a50] transition-colors">
                   {step.title}
                 </h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-3">
+                <p className="text-[11px] text-[#f5efe9]/60 leading-relaxed line-clamp-3">
                   {step.detail}
                 </p>
               </div>
 
               {/* Arrow Connector on desktop */}
               {idx < activeScenario.steps.length - 1 && (
-                <div className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-[#070b14] border border-cyan-500/30 items-center justify-center text-slate-400 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
-                  <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-[#140604] border border-[#ff5a1f]/35 items-center justify-center text-slate-400 shadow-[0_0_10px_rgba(255,90,31,0.25)]">
+                  <ArrowRight className="w-3.5 h-3.5 text-[#ff5a1f]" />
                 </div>
               )}
             </div>
@@ -306,17 +306,17 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
       </div>
 
       {/* Instant Traversal Trigger Callout */}
-      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between glass-panel p-5 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 via-slate-900/60 to-purple-950/30">
+      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between glass-panel p-5 rounded-2xl border border-[#ff5a1f]/25 bg-gradient-to-r from-[#2a0a04]/40 via-[#140604]/80 to-[#2a0a04]/40">
         <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 font-mono font-bold text-sm">
+          <div className="w-10 h-10 rounded-xl bg-[#ff2a1f]/20 border border-[#ff2a1f]/40 flex items-center justify-center text-[#ff2a1f] font-mono font-bold text-sm">
             {activeScenario.cvss}
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white flex items-center gap-2">
+            <h4 className="text-sm font-bold text-[#f5efe9] flex items-center gap-2">
               Ready to verify {activeScenario.name}?
-              <span className="text-xs text-red-400 font-mono font-normal">CRITICAL SEVERITY</span>
+              <span className="text-xs text-[#ff2a1f] font-mono font-normal">CRITICAL SEVERITY</span>
             </h4>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#f5efe9]/60">
               Run autonomous 3-second GraphRAG traversal on this repository topology.
             </p>
           </div>
@@ -324,9 +324,9 @@ export const AttackPathShowcase: React.FC<AttackPathShowcaseProps> = ({ onSelect
 
         <button
           onClick={() => onSelectAndAnalyze(activeScenario.target, "repository")}
-          className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-2.5 text-xs font-bold text-slate-950 hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] cursor-pointer shrink-0"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#ff5a1f] to-[#ff2a1f] px-5 py-2.5 text-xs font-bold text-white hover:opacity-95 transition-all shadow-[0_0_20px_rgba(255,90,31,0.4)] cursor-pointer shrink-0"
         >
-          <Zap className="w-4 h-4 fill-slate-950" />
+          <Zap className="w-4 h-4 fill-white" />
           <span>Simulate Attack in Sandbox</span>
         </button>
       </div>

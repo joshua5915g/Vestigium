@@ -17,7 +17,7 @@ const ECOSYSTEM_ITEMS = [
 
 export const EcosystemMarquee: React.FC = () => {
   return (
-    <div className="relative overflow-hidden border-y border-white/10 bg-[#060910] py-4">
+    <div className="relative overflow-hidden border-y border-[#ff5a1f]/20 bg-[#0a0403] py-4">
       <div
         className="flex w-max animate-marquee gap-10 whitespace-nowrap"
         style={{
@@ -27,14 +27,15 @@ export const EcosystemMarquee: React.FC = () => {
       >
         {[...ECOSYSTEM_ITEMS, ...ECOSYSTEM_ITEMS].map((item, idx) => (
           <div key={idx} className="flex items-center gap-10">
-            <span className="font-mono text-xs uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+            <span className="font-mono text-xs uppercase tracking-widest text-[#f5efe9]/70 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff5a1f] shadow-[0_0_8px_#ff5a1f]"></span>
               {item}
             </span>
-            <span className="text-slate-700">✦</span>
+            <span className="text-[#571708]">✦</span>
           </div>
         ))}
       </div>
     </div>
   );
 };
+
