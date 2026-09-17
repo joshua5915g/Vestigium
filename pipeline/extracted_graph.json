@@ -1,0 +1,325 @@
+{
+  "metadata": {
+    "cves_analyzed": [
+      "CVE-2021-44228",
+      "CVE-2022-23529",
+      "CVE-2024-3094",
+      "CVE-2023-38606"
+    ],
+    "total_nodes": 23,
+    "total_edges": 22,
+    "label_distribution": {
+      "Vulnerability": 4,
+      "Software": 5,
+      "AttackVector": 3,
+      "Weakness": 2,
+      "Impact": 4,
+      "Mitigation": 4,
+      "ThreatActor": 1
+    },
+    "schema_version": "2.0.0"
+  },
+  "nodes": [
+    {
+      "id": "vuln-cve-2021-44228",
+      "name": "CVE-2021-44228",
+      "label": "Vulnerability",
+      "properties": {
+        "cvss": 10.0,
+        "severity": "CRITICAL",
+        "cve_id": "CVE-2021-44228",
+        "published": "2021-12-10T10:15:00"
+      }
+    },
+    {
+      "id": "software-apache-log4j",
+      "name": "Apache Log4j2",
+      "label": "Software",
+      "properties": {
+        "ecosystem": "maven",
+        "affected_versions": "2.0-beta9 <= 2.14.1"
+      }
+    },
+    {
+      "id": "vector-ldap-jndi",
+      "name": "LDAP JNDI Lookup Injection",
+      "label": "AttackVector",
+      "properties": {}
+    },
+    {
+      "id": "weakness-cwe-502",
+      "name": "CWE-502: Deserialization of Untrusted Data",
+      "label": "Weakness",
+      "properties": {}
+    },
+    {
+      "id": "impact-remote-code-execution",
+      "name": "Remote Code Execution",
+      "label": "Impact",
+      "properties": {}
+    },
+    {
+      "id": "mitigation-upgrade-log4j",
+      "name": "Upgrade to log4j-core >= 2.17.1",
+      "label": "Mitigation",
+      "properties": {}
+    },
+    {
+      "id": "actor-remote-unauthenticated",
+      "name": "Unauthenticated Remote Adversary",
+      "label": "ThreatActor",
+      "properties": {}
+    },
+    {
+      "id": "vuln-cve-2022-23529",
+      "name": "CVE-2022-23529",
+      "label": "Vulnerability",
+      "properties": {
+        "cvss": 9.8,
+        "severity": "CRITICAL",
+        "cve_id": "CVE-2022-23529",
+        "published": "2022-12-21T19:15:00"
+      }
+    },
+    {
+      "id": "software-jsonwebtoken",
+      "name": "jsonwebtoken (Node.js)",
+      "label": "Software",
+      "properties": {
+        "ecosystem": "npm",
+        "affected_versions": "<= 8.5.1"
+      }
+    },
+    {
+      "id": "vector-tostring-injection",
+      "name": "Crafted secretOrPublicKey Parameter",
+      "label": "AttackVector",
+      "properties": {}
+    },
+    {
+      "id": "weakness-cwe-94",
+      "name": "CWE-94: Code Injection",
+      "label": "Weakness",
+      "properties": {}
+    },
+    {
+      "id": "impact-rce",
+      "name": "Arbitrary Remote Code Execution",
+      "label": "Impact",
+      "properties": {}
+    },
+    {
+      "id": "mitigation-upgrade-jsonwebtoken",
+      "name": "Upgrade jsonwebtoken to >= 9.0.0",
+      "label": "Mitigation",
+      "properties": {}
+    },
+    {
+      "id": "vuln-cve-2024-3094",
+      "name": "CVE-2024-3094",
+      "label": "Vulnerability",
+      "properties": {
+        "cvss": 10.0,
+        "severity": "CRITICAL",
+        "cve_id": "CVE-2024-3094",
+        "published": "2024-03-29T16:15:00"
+      }
+    },
+    {
+      "id": "software-xz-utils",
+      "name": "XZ Utils (liblzma)",
+      "label": "Software",
+      "properties": {
+        "ecosystem": "c/c++",
+        "affected_versions": "5.6.0 - 5.6.1"
+      }
+    },
+    {
+      "id": "software-openssh-sshd",
+      "name": "OpenSSH sshd",
+      "label": "Software",
+      "properties": {}
+    },
+    {
+      "id": "vector-build-backdoor",
+      "name": "Obfuscated M4 Macro Payload",
+      "label": "AttackVector",
+      "properties": {}
+    },
+    {
+      "id": "impact-ssh-auth-bypass",
+      "name": "Pre-Authentication Root Compromise",
+      "label": "Impact",
+      "properties": {}
+    },
+    {
+      "id": "mitigation-downgrade-xz",
+      "name": "Revert xz-utils to 5.4.x",
+      "label": "Mitigation",
+      "properties": {}
+    },
+    {
+      "id": "vuln-cve-2023-38606",
+      "name": "CVE-2023-38606",
+      "label": "Vulnerability",
+      "properties": {
+        "cvss": 7.8,
+        "severity": "HIGH",
+        "cve_id": "CVE-2023-38606",
+        "published": "2023-07-24T18:15:00"
+      }
+    },
+    {
+      "id": "software-cve",
+      "name": "CVE",
+      "label": "Software",
+      "properties": {}
+    },
+    {
+      "id": "impact-service-compromise",
+      "name": "System Integrity Compromise",
+      "label": "Impact",
+      "properties": {}
+    },
+    {
+      "id": "mitigation-apply-security-patch",
+      "name": "Apply Vendor Security Patch",
+      "label": "Mitigation",
+      "properties": {}
+    }
+  ],
+  "edges": [
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "software-apache-log4j",
+      "relationship_type": "AFFECTS",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "vector-ldap-jndi",
+      "relationship_type": "EXPLOITED_VIA",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "weakness-cwe-502",
+      "relationship_type": "EXEMPLIFIES",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "impact-remote-code-execution",
+      "relationship_type": "LEADS_TO",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "mitigation-upgrade-log4j",
+      "relationship_type": "MITIGATED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2021-44228",
+      "target": "actor-remote-unauthenticated",
+      "relationship_type": "ATTEMPTED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "software-jsonwebtoken",
+      "relationship_type": "AFFECTS",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "vector-tostring-injection",
+      "relationship_type": "EXPLOITED_VIA",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "weakness-cwe-94",
+      "relationship_type": "EXEMPLIFIES",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "impact-rce",
+      "relationship_type": "LEADS_TO",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "mitigation-upgrade-jsonwebtoken",
+      "relationship_type": "MITIGATED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2022-23529",
+      "target": "actor-remote-unauthenticated",
+      "relationship_type": "ATTEMPTED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2024-3094",
+      "target": "software-xz-utils",
+      "relationship_type": "AFFECTS",
+      "properties": {}
+    },
+    {
+      "source": "software-openssh-sshd",
+      "target": "software-xz-utils",
+      "relationship_type": "DEPENDS_ON",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2024-3094",
+      "target": "vector-build-backdoor",
+      "relationship_type": "EXPLOITED_VIA",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2024-3094",
+      "target": "impact-ssh-auth-bypass",
+      "relationship_type": "LEADS_TO",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2024-3094",
+      "target": "mitigation-downgrade-xz",
+      "relationship_type": "MITIGATED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2024-3094",
+      "target": "actor-remote-unauthenticated",
+      "relationship_type": "ATTEMPTED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2023-38606",
+      "target": "software-cve",
+      "relationship_type": "AFFECTS",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2023-38606",
+      "target": "impact-service-compromise",
+      "relationship_type": "LEADS_TO",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2023-38606",
+      "target": "mitigation-apply-security-patch",
+      "relationship_type": "MITIGATED_BY",
+      "properties": {}
+    },
+    {
+      "source": "vuln-cve-2023-38606",
+      "target": "actor-remote-unauthenticated",
+      "relationship_type": "ATTEMPTED_BY",
+      "properties": {}
+    }
+  ]
+}
