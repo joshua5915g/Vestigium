@@ -16,6 +16,7 @@ import { GraphControls } from "../components/GraphControls";
 import { RemediationModal } from "../components/RemediationModal";
 import { AttackPathStepper } from "../components/AttackPathStepper";
 import { ComplianceRadar } from "../components/ComplianceRadar";
+import { SentinelRadar } from "../components/SentinelRadar";
 import { Footer } from "../components/Footer";
 import { fetchAnalysis } from "../lib/api";
 import { AnalysisResponse, GraphNode } from "../lib/types";
@@ -148,6 +149,18 @@ export default function VestigiumApp() {
           <p className="mt-2 max-w-2xl text-sm text-slate-400">
             Click any node to inspect blast radius, examine attack paths, or launch self-healing CI/CD remediation patches.
           </p>
+        </div>
+
+        {/* Live NVD Zero-Day Sentinel Threat Radar */}
+        <div className="mb-4 rounded-xl overflow-hidden border border-cyan-500/30">
+          <SentinelRadar
+            onSelectTargetNode={(cveId) => {
+              const node = analysis?.graph_data.nodes.find(
+                (n) => n.id.toLowerCase().includes(cveId.toLowerCase()) || n.name.toLowerCase().includes(cveId.toLowerCase())
+              );
+              if (node) setSelectedNode(node);
+            }}
+          />
         </div>
 
         {/* Target Input & Scenario Switcher Bar */}
