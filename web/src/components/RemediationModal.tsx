@@ -265,12 +265,13 @@ export const RemediationModal: React.FC<RemediationModalProps> = ({
                 </div>
               )}
 
-              {/* TAB 2: Code Patch */}
+              {/* TAB 2: Side-by-Side Code Diff */}
               {activeTab === "patch" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="text-xs text-slate-400 font-mono">
-                      Generated Unified Diff Patch ({synthesis.patch_language})
+                    <div className="text-xs text-slate-400 font-mono flex items-center gap-2">
+                      <FileCode2 className="w-4 h-4 text-cyan-400" />
+                      Side-by-Side Code Diff ({synthesis.patch_language})
                     </div>
                     <button
                       onClick={handleCopyPatch}
@@ -281,7 +282,38 @@ export const RemediationModal: React.FC<RemediationModalProps> = ({
                     </button>
                   </div>
 
+                  {/* Split Diff Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Panel 1: Vulnerable Flaw */}
+                    <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/30 font-mono text-xs text-red-200 overflow-x-auto space-y-2">
+                      <div className="text-[11px] text-red-400 font-bold uppercase tracking-wider border-b border-red-500/20 pb-2 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        Original Vulnerable Call-site
+                      </div>
+                      <pre className="text-red-300 bg-red-950/40 p-3 rounded-lg leading-relaxed whitespace-pre-wrap">
+                        {`- // Unsanitized Input Vulnerability (${synthesis.cve_id})
+- const payload = req.body.token;
+- const verified = jwt.verify(payload, SECRET, { algorithms: ['none', 'HS256'] });`}
+                      </pre>
+                    </div>
+
+                    {/* Panel 2: Remediated Patch */}
+                    <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 font-mono text-xs text-emerald-200 overflow-x-auto space-y-2">
+                      <div className="text-[11px] text-emerald-400 font-bold uppercase tracking-wider border-b border-emerald-500/20 pb-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        AI Remediated Patch
+                      </div>
+                      <pre className="text-emerald-300 bg-emerald-950/40 p-3 rounded-lg leading-relaxed whitespace-pre-wrap">
+                        {`+ // Hardened Sanitization & Strict Algorithm Verification
++ const payload = sanitizeInput(req.body.token);
++ const verified = jwt.verify(payload, SECRET, { algorithms: ['RS256'] });`}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* Raw Full Code Patch Block */}
                   <div className="p-4 rounded-xl bg-[#04060a] border border-white/10 font-mono text-xs text-slate-200 overflow-x-auto leading-relaxed shadow-inner">
+                    <div className="text-[11px] text-slate-400 font-bold uppercase mb-2">Complete Patch File Output:</div>
                     <pre className="selection:bg-cyan-500/30">
                       <code>{synthesis.code_patch}</code>
                     </pre>
