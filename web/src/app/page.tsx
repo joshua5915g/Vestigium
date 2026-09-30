@@ -14,10 +14,11 @@ import { NodeInspector } from "../components/NodeInspector";
 import { ThreatReport } from "../components/ThreatReport";
 import { GraphControls } from "../components/GraphControls";
 import { RemediationModal } from "../components/RemediationModal";
+import { AttackPathStepper } from "../components/AttackPathStepper";
 import { Footer } from "../components/Footer";
 import { fetchAnalysis } from "../lib/api";
 import { AnalysisResponse, GraphNode } from "../lib/types";
-import { AlertCircle, Zap } from "lucide-react";
+import { AlertCircle, Zap, Flame } from "lucide-react";
 
 const INITIAL_GROUPS = new Set([
   "repository",
@@ -36,9 +37,11 @@ export default function VestigiumApp() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [isReportOpen, setIsReportOpen] = useState<boolean>(true);
   const [isRemediationOpen, setIsRemediationOpen] = useState<boolean>(false);
+  const [isStepperOpen, setIsStepperOpen] = useState<boolean>(false);
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set(INITIAL_GROUPS));
   const [currentTarget, setCurrentTarget] = useState<string>("https://github.com/garrytan/gstack");
   const [dimensionMode, setDimensionMode] = useState<"2D" | "3D">("3D");
+
 
   const sandboxRef = useRef<HTMLDivElement | null>(null);
 
@@ -154,6 +157,21 @@ export default function VestigiumApp() {
 
         {/* Interactive Graph Canvas Window */}
         <div className="relative w-full h-[680px] rounded-2xl overflow-hidden glass-panel-elevated border border-white/10 mt-4">
+          {/* Red Team Attack Stepper Floating HUD Toggle */}
+          <div className="absolute top-4 right-4 z-40">
+            <button
+              onClick={() => setIsStepperOpen(!isStepperOpen)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold flex items-center gap-2 backdrop-blur-md border transition-all duration-300 shadow-xl ${
+                isStepperOpen
+                  ? "bg-red-500/20 text-red-300 border-red-500/50 shadow-red-950/50 scale-105"
+                  : "bg-slate-900/80 text-slate-300 border-slate-700/80 hover:bg-slate-800 hover:border-slate-600"
+              }`}
+            >
+              <Flame className={`w-4 h-4 ${isStepperOpen ? "text-red-400 animate-pulse" : "text-amber-400"}`} />
+              <span>{isStepperOpen ? "Hide Red Team Stepper" : "Red Team Simulation HUD"}</span>
+            </button>
+          </div>
+
           {/* Error Notification Banner */}
           {error && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-950/90 border border-red-500 text-red-300 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-mono backdrop-blur-md">
@@ -161,6 +179,17 @@ export default function VestigiumApp() {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Autonomous Attack Stepper HUD Overlay */}
+          <div className="absolute top-16 left-4 z-40 max-w-md w-full">
+            <AttackPathStepper
+              target={currentTarget}
+              graphNodes={analysis?.graph_data.nodes || []}
+              onSelectNode={(node) => setSelectedNode(node)}
+              isOpen={isStepperOpen}
+              onClose={() => setIsStepperOpen(false)}
+            />
+          </div>
 
           {/* Force Graph Canvas (2D or 3D WebGL Spatial) */}
           {analysis?.graph_data ? (
@@ -216,6 +245,7 @@ export default function VestigiumApp() {
             />
           )}
         </div>
+
       </section>
 
       {/* 5. Cyber Architecture Bento Feature Grid */}

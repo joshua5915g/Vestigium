@@ -80,5 +80,14 @@ async def remediate_vulnerability(request: RemediationRequest) -> RemediationRes
     from healing_agent import healing_agent
     return healing_agent.remediate(request)
 
+@router.post(
+    "/traversal/steps",
+    status_code=status.HTTP_200_OK,
+    summary="Get 5-step Red Team simulation sequence for autonomous attack stepper"
+)
+async def get_attack_stepper_sequence(request: AnalysisRequest):
+    return AttackPathFinder.get_attack_step_sequence(request.target.strip())
+
+
 
 

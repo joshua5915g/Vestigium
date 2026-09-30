@@ -117,3 +117,21 @@ export interface RemediationResponse {
   branch_name?: string | null;
   message: string;
 }
+
+export interface AttackStep {
+  step_index: number;
+  node_id: string;
+  node_label: string;
+  node_name: string;
+  action_title: string;
+  description: string;
+  payload_preview?: string;
+  cumulative_risk: number;
+}
+
+export interface AttackStepperResponse {
+  target: string;
+  total_steps: number;
+  steps: AttackStep[];
+}
+

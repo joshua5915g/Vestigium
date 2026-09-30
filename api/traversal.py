@@ -279,3 +279,94 @@ class AttackPathFinder:
         ])
 
         return "\n".join(report_lines)
+
+    @classmethod
+    def get_attack_step_sequence(cls, target: str) -> Dict[str, Any]:
+        """
+        Generates structured 5-step Red Team simulation sequence for autonomous attack stepper.
+        """
+        target_clean = target.strip()
+        analysis = cls.analyze_project_reachability(target_clean)
+        nodes = analysis.graph_data.nodes
+
+        # Map nodes by category group
+        repo_nodes = [n for n in nodes if n.group in ("repository", "SourceFile")]
+        fn_nodes = [n for n in nodes if n.group in ("function", "Function")]
+        dep_nodes = [n for n in nodes if n.group in ("dependency", "Package", "Software")]
+        cve_nodes = [n for n in nodes if n.group in ("cve", "Vulnerability")]
+        exploit_nodes = [n for n in nodes if n.group in ("exploit", "Impact", "AttackVector")]
+        asset_nodes = [n for n in nodes if n.group in ("asset", "CrownJewel")]
+
+        steps = []
+        
+        # Step 0: Ingress Node
+        repo_node = repo_nodes[0] if repo_nodes else Node(id="repo-root", name=target_clean, group="repository")
+        steps.append({
+            "step_index": 0,
+            "node_id": repo_node.id,
+            "node_label": "Repository Ingress",
+            "node_name": repo_node.name,
+            "action_title": "1. Public HTTP Ingress Discovery",
+            "description": f"Adversary performs unauthenticated target reconnaissance against HTTP entrypoint in {repo_node.name}.",
+            "payload_preview": f"POST /api/v1/ingress HTTP/1.1\nHost: {target_clean}\nUser-Agent: RedTeam-Recon/2.0\nContent-Type: application/json",
+            "cumulative_risk": 15.0
+        })
+
+        # Step 1: Call-site Function
+        fn_node = fn_nodes[0] if fn_nodes else Node(id="fn-entry", name="handleRequest()", group="function")
+        steps.append({
+            "step_index": 1,
+            "node_id": fn_node.id,
+            "node_label": "Execution Call-site",
+            "node_name": fn_node.name,
+            "action_title": "2. Function Call-site Execution",
+            "description": f"Internal execution reaches vulnerable function `{fn_node.name}` without prior input sanitization.",
+            "payload_preview": f"// Stack Trace Call-site\n{fn_node.name} (src/middleware/auth.ts:42:10)\n  └─> parsing unverified authorization headers",
+            "cumulative_risk": 35.0
+        })
+
+        # Step 2: Vulnerable Dependency
+        dep_node = dep_nodes[0] if dep_nodes else Node(id="dep-pkg", name="vulnerable-pkg", group="dependency")
+        steps.append({
+            "step_index": 2,
+            "node_id": dep_node.id,
+            "node_label": "Vulnerable Dependency",
+            "node_name": dep_node.name,
+            "action_title": "3. 3rd-Party Library Invocation",
+            "description": f"Function invokes third-party library `{dep_node.name}` containing unpatched vulnerabilities.",
+            "payload_preview": f"const pkg = require('{dep_node.name}');\npkg.verify(untrustedInput, secretKey, {{ algorithms: ['none', 'HS256'] }});",
+            "cumulative_risk": 60.0
+        })
+
+        # Step 3: CVE Exploitation
+        cve_node = cve_nodes[0] if cve_nodes else Node(id="cve-target", name="CVE-2022-23529", group="cve")
+        steps.append({
+            "step_index": 3,
+            "node_id": cve_node.id,
+            "node_label": "Vulnerability Trigger",
+            "node_name": cve_node.name,
+            "action_title": f"4. Triggering {cve_node.name}",
+            "description": f"Crafted payload triggers `{cve_node.name}` flaw leading to arbitrary remote code execution.",
+            "payload_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.RCE_Gadget_Payload_Chain",
+            "cumulative_risk": 85.0
+        })
+
+        # Step 4: Asset Compromise
+        asset_node = asset_nodes[0] if asset_nodes else Node(id="asset-vault", name="CrownJewel Vault", group="asset")
+        steps.append({
+            "step_index": 4,
+            "node_id": asset_node.id,
+            "node_label": "Crown Jewel Compromise",
+            "node_name": asset_node.name,
+            "action_title": f"5. Exfiltration of {asset_node.name}",
+            "description": f"Adversary gains full administrative access to `{asset_node.name}` and exfiltrates sensitive database credentials.",
+            "payload_preview": f"[ALERT] Exfiltrating KMS keys & secret tokens from {asset_node.name}\nAWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+            "cumulative_risk": 100.0
+        })
+
+        return {
+            "target": target_clean,
+            "total_steps": len(steps),
+            "steps": steps
+        }
+

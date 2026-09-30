@@ -76,4 +76,20 @@ class RemediationResponse(BaseModel):
     branch_name: Optional[str] = Field(default=None, description="Git branch name created for the patch")
     message: str = Field(..., description="Summary message of the remediation result")
 
+class AttackStep(BaseModel):
+    step_index: int = Field(..., description="0-indexed step sequence number")
+    node_id: str = Field(..., description="Target node ID in the graph")
+    node_label: str = Field(..., description="Node label/category (e.g. Repository, Function, CVE, Exploit, Asset)")
+    node_name: str = Field(..., description="Human-readable node name")
+    action_title: str = Field(..., description="Adversary action title for this step")
+    description: str = Field(..., description="Detailed red team step walkthrough")
+    payload_preview: Optional[str] = Field(default=None, description="Simulated attack payload or stack trace snippet")
+    cumulative_risk: float = Field(..., description="Cumulative blast radius risk percentage (0 to 100)")
+
+class AttackStepperResponse(BaseModel):
+    target: str = Field(..., description="Target repository or scenario identifier")
+    total_steps: int = Field(..., description="Total number of attack steps in the sequence")
+    steps: List[AttackStep] = Field(default_factory=list, description="Ordered list of attack path steps")
+
+
 

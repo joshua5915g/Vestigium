@@ -71,3 +71,21 @@ export async function fetchRemediation(
   return response.json();
 }
 
+export async function fetchAttackSteps(target: string) {
+  const response = await fetch(`${API_BASE_URL}/api/v1/traversal/steps`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ target }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+    throw new Error(errorBody.detail || `Attack stepper request failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+
