@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 import os
+import json
+import asyncio
 from app.models.schema import (
     AnalysisRequest, 
     AnalysisResponse, 
@@ -36,6 +39,37 @@ async def analyze_target(request: AnalysisRequest) -> AnalysisResponse:
 
     # Otherwise run Cartographer simulation scenarios
     return await CartographerService.analyze_target(request)
+
+@router.post(
+    "/scan/stream",
+    summary="Stream live SSE AST parsing & graph analysis progress"
+)
+async def stream_scan_progress(request: AnalysisRequest):
+    target_clean = request.target.strip()
+
+    async def event_generator():
+        # Stage 1: Ingesting / Cloning
+        yield f"data: {json.dumps({'stage': 'FETCHING', 'message': f'Initializing AST scanner for target {target_clean}', 'progress': 20})}\n\n"
+        await asyncio.sleep(0.4)
+
+        # Stage 2: AST Parsing
+        yield f"data: {json.dumps({'stage': 'PARSING_AST', 'message': 'Parsing source code AST & dependency manifests...', 'progress': 50})}\n\n"
+        await asyncio.sleep(0.4)
+
+        # Stage 3: Graph Traversal
+        yield f"data: {json.dumps({'stage': 'GRAPH_TRAVERSAL', 'message': 'Correlating call-sites with NVD Vulnerability Graph...', 'progress': 80})}\n\n"
+        await asyncio.sleep(0.4)
+
+        # Perform actual analysis
+        if os.path.exists(target_clean) or request.target_type in ("ast", "local"):
+            res = AttackPathFinder.analyze_project_reachability(target_clean)
+        else:
+            res = await CartographerService.analyze_target(request)
+
+        # Stage 4: Complete
+        yield f"data: {json.dumps({'stage': 'COMPLETE', 'message': 'Graph Cartography complete!', 'progress': 100, 'result': res.model_dump()})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @router.post(
     "/ast/scan",

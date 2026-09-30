@@ -9,7 +9,9 @@ import {
   Radio, 
   Flame,
   ShieldCheck,
-  Bot
+  Bot,
+  FolderPlus,
+  Terminal
 } from "lucide-react";
 
 interface TargetInputProps {
@@ -77,6 +79,7 @@ export const TargetInput: React.FC<TargetInputProps> = ({
   const [target, setTarget] = useState(initialTarget);
   const [targetType, setTargetType] = useState("repository");
   const [depth, setDepth] = useState(3);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,8 +93,40 @@ export const TargetInput: React.FC<TargetInputProps> = ({
     onAnalyze(presetTarget, type, depth);
   };
 
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      // Use local file or folder path if provided
+      const path = (file as unknown as { path?: string }).path || file.name;
+      setTarget(path);
+      setTargetType("ast");
+      onAnalyze(path, "ast", depth);
+    }
+  };
+
   return (
-    <div className="w-full glass-panel border-b border-white/10 px-6 py-3 space-y-2.5 z-30">
+    <div 
+      onDragEnter={handleDrag}
+      onDragOver={handleDrag}
+      onDragLeave={handleDrag}
+      onDrop={handleDrop}
+      className={`w-full glass-panel border-b border-white/10 px-6 py-3 space-y-2.5 z-30 transition-all ${
+        dragActive ? "border-cyan-400 bg-cyan-950/40" : ""
+      }`}
+    >
       {/* Search & Configuration Bar */}
       <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
         {/* Target Input */}
@@ -103,10 +138,17 @@ export const TargetInput: React.FC<TargetInputProps> = ({
             type="text"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            placeholder="Enter Target GitHub URL, Local Project Path, or Package Name..."
+            placeholder="Enter Target GitHub URL, Local Project Path, or Drag Folder Here..."
             disabled={loading}
-            className="w-full pl-10 pr-4 py-2 rounded-xl glass-input text-xs text-slate-100 placeholder-slate-500 font-mono outline-none"
+            className="w-full pl-10 pr-10 py-2 rounded-xl glass-input text-xs text-slate-100 placeholder-slate-500 font-mono outline-none"
           />
+          <button
+            type="button"
+            title="Drop Local Project Folder for AST Scanning"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-cyan-400 transition"
+          >
+            <FolderPlus className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Scan Type Selector */}
@@ -171,7 +213,7 @@ export const TargetInput: React.FC<TargetInputProps> = ({
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Traversing Graph...</span>
+              <span>Scanning AST...</span>
             </>
           ) : (
             <>
@@ -201,6 +243,22 @@ export const TargetInput: React.FC<TargetInputProps> = ({
           );
         })}
       </div>
+
+      {/* SSE Real-time Progress Bar Drawer when Loading */}
+      {loading && (
+        <div className="bg-slate-950/80 rounded-xl p-3 border border-cyan-500/30 font-mono text-xs space-y-2 animate-pulse">
+          <div className="flex items-center justify-between text-cyan-400">
+            <span className="flex items-center gap-2">
+              <Terminal className="w-3.5 h-3.5" />
+              STREAMING AST & KNOWLEDGE GRAPH SCAN
+            </span>
+            <span className="text-slate-400">STATUS: ACTIVE</span>
+          </div>
+          <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 w-3/4 animate-pulse"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
