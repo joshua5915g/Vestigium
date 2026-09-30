@@ -15,10 +15,11 @@ import { ThreatReport } from "../components/ThreatReport";
 import { GraphControls } from "../components/GraphControls";
 import { RemediationModal } from "../components/RemediationModal";
 import { AttackPathStepper } from "../components/AttackPathStepper";
+import { ComplianceRadar } from "../components/ComplianceRadar";
 import { Footer } from "../components/Footer";
 import { fetchAnalysis } from "../lib/api";
 import { AnalysisResponse, GraphNode } from "../lib/types";
-import { AlertCircle, Zap, Flame } from "lucide-react";
+import { AlertCircle, Zap, Flame, Award, Network } from "lucide-react";
 
 const INITIAL_GROUPS = new Set([
   "repository",
@@ -38,6 +39,7 @@ export default function VestigiumApp() {
   const [isReportOpen, setIsReportOpen] = useState<boolean>(true);
   const [isRemediationOpen, setIsRemediationOpen] = useState<boolean>(false);
   const [isStepperOpen, setIsStepperOpen] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<"graph" | "compliance">("graph");
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set(INITIAL_GROUPS));
   const [currentTarget, setCurrentTarget] = useState<string>("https://github.com/garrytan/gstack");
   const [dimensionMode, setDimensionMode] = useState<"2D" | "3D">("3D");
@@ -155,22 +157,60 @@ export default function VestigiumApp() {
           initialTarget={currentTarget}
         />
 
-        {/* Interactive Graph Canvas Window */}
-        <div className="relative w-full h-[680px] rounded-2xl overflow-hidden glass-panel-elevated border border-white/10 mt-4">
-          {/* Red Team Attack Stepper Floating HUD Toggle */}
-          <div className="absolute top-4 right-4 z-40">
+        {/* View Switcher Bar */}
+        <div className="flex items-center justify-between mt-4 mb-2">
+          <div className="flex items-center gap-2 p-1 bg-slate-900/80 border border-slate-800 rounded-xl backdrop-blur-md">
             <button
-              onClick={() => setIsStepperOpen(!isStepperOpen)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold flex items-center gap-2 backdrop-blur-md border transition-all duration-300 shadow-xl ${
-                isStepperOpen
-                  ? "bg-red-500/20 text-red-300 border-red-500/50 shadow-red-950/50 scale-105"
-                  : "bg-slate-900/80 text-slate-300 border-slate-700/80 hover:bg-slate-800 hover:border-slate-600"
+              onClick={() => setActiveView("graph")}
+              className={`px-4 py-2 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                activeView === "graph"
+                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-950/40"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              <Flame className={`w-4 h-4 ${isStepperOpen ? "text-red-400 animate-pulse" : "text-amber-400"}`} />
-              <span>{isStepperOpen ? "Hide Red Team Stepper" : "Red Team Simulation HUD"}</span>
+              <Network className="w-4 h-4 text-cyan-400" />
+              <span>3D Spatial Cartography Graph</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView("compliance")}
+              className={`px-4 py-2 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                activeView === "compliance"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-950/40"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Award className="w-4 h-4 text-purple-400" />
+              <span>Executive Compliance Radar (SOC2/NIST)</span>
             </button>
           </div>
+        </div>
+
+        {activeView === "compliance" ? (
+          <div className="mt-4">
+            <ComplianceRadar
+              target={currentTarget}
+              summary={analysis?.summary || null}
+            />
+          </div>
+        ) : (
+          /* Interactive Graph Canvas Window */
+          <div className="relative w-full h-[680px] rounded-2xl overflow-hidden glass-panel-elevated border border-white/10 mt-2">
+            {/* Red Team Attack Stepper Floating HUD Toggle */}
+            <div className="absolute top-4 right-4 z-40">
+              <button
+                onClick={() => setIsStepperOpen(!isStepperOpen)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold flex items-center gap-2 backdrop-blur-md border transition-all duration-300 shadow-xl ${
+                  isStepperOpen
+                    ? "bg-red-500/20 text-red-300 border-red-500/50 shadow-red-950/50 scale-105"
+                    : "bg-slate-900/80 text-slate-300 border-slate-700/80 hover:bg-slate-800 hover:border-slate-600"
+                }`}
+              >
+                <Flame className={`w-4 h-4 ${isStepperOpen ? "text-red-400 animate-pulse" : "text-amber-400"}`} />
+                <span>{isStepperOpen ? "Hide Red Team Stepper" : "Red Team Simulation HUD"}</span>
+              </button>
+            </div>
+
 
           {/* Error Notification Banner */}
           {error && (
@@ -245,6 +285,7 @@ export default function VestigiumApp() {
             />
           )}
         </div>
+      )}
 
       </section>
 
