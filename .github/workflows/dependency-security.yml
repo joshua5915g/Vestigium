@@ -35,6 +35,7 @@ jobs:
           python-version: "3.11"
 
       - name: Scan dependencies
+        shell: bash
         run: python api/app/services/dependency_scanner.py --root . --fail-on any | tee osv-scan.json
 
       - name: Save scan report
