@@ -161,3 +161,26 @@ export interface DependencyScanResponse {
   }>;
   findings: DependencyFinding[];
 }
+
+export interface UpgradePullRequestResponse {
+  target: string;
+  advisory_id: string;
+  package: string;
+  current_version: string;
+  fixed_version: string;
+  manifest_path: string;
+  pull_request_number: number;
+  pull_request_url: string;
+  branch: string;
+  checks_state: string;
+  message: string;
+}
+
+export interface UpgradeCheckResponse {
+  target: string;
+  pull_request_number: number;
+  pull_request_url: string;
+  checks_state: "pending" | "verified" | "failed" | "not_configured";
+  check_runs: Array<{ name: string; status: string; conclusion: string | null }>;
+  commit_statuses: Array<{ context: string; state: string }>;
+}

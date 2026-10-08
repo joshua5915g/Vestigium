@@ -15,7 +15,7 @@ class DependencyScanRequest(BaseModel):
 
 @router.post("/scan")
 async def scan_dependencies(request: DependencyScanRequest):
-    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     allowed_root = os.path.realpath(os.getenv("SCAN_ALLOWED_ROOT", default_root))
     target = os.path.realpath(os.path.join(allowed_root, request.target))
 

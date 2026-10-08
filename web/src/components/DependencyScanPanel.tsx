@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { AlertTriangle, LoaderCircle, SearchCheck, ShieldCheck } from "lucide-react";
-import { fetchDependencyScan } from "../lib/api";
-import { DependencyFinding, DependencyScanResponse } from "../lib/types";
+import { fetchDependencyScan, fetchUpgradeChecks, fetchUpgradePullRequest } from "../lib/api";
+import {
+  DependencyFinding,
+  DependencyScanResponse,
+  UpgradeCheckResponse,
+  UpgradePullRequestResponse,
+} from "../lib/types";
 
 const severityStyles: Record<DependencyFinding["severity"], string> = {
   CRITICAL: "text-red-300 border-red-500/40 bg-red-500/10",
@@ -14,10 +19,20 @@ const severityStyles: Record<DependencyFinding["severity"], string> = {
 };
 
 export function DependencyScanPanel() {
-  const [target, setTarget] = useState("..");
+  const [target, setTarget] = useState(".");
   const [result, setResult] = useState<DependencyScanResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [githubRepo, setGithubRepo] = useState("");
+  const [remediationKey, setRemediationKey] = useState("");
+  const [fixedVersions, setFixedVersions] = useState<Record<string, string>>({});
+  const [upgradeResults, setUpgradeResults] = useState<Record<string, UpgradePullRequestResponse>>({});
+  const [upgradeChecks, setUpgradeChecks] = useState<Record<string, UpgradeCheckResponse>>({});
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
+  const [busyUpgrade, setBusyUpgrade] = useState<string | null>(null);
+
+  const findingKey = (finding: DependencyFinding) =>
+    `${finding.id}:${finding.dependency}:${finding.version}`;
 
   const runScan = async () => {
     setLoading(true);
@@ -29,6 +44,55 @@ export function DependencyScanPanel() {
       setResult(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openUpgrade = async (finding: DependencyFinding) => {
+    const key = findingKey(finding);
+    const manifest = finding.manifests.find((path) => path.toLowerCase().endsWith("requirements.txt"));
+    const fixedVersion = fixedVersions[key] || finding.fixed_versions[0];
+    if (!manifest || !fixedVersion || !githubRepo.trim()) {
+      setUpgradeError("Enter the GitHub owner/repository and select a reported fixed version.");
+      return;
+    }
+
+    setBusyUpgrade(key);
+    setUpgradeError(null);
+    try {
+      const pr = await fetchUpgradePullRequest({
+        target: githubRepo.trim(),
+        manifest_path: manifest,
+        advisory_id: finding.id,
+        package_name: finding.dependency,
+        current_version: finding.version,
+        fixed_version: fixedVersion,
+      }, remediationKey);
+      setUpgradeResults((previous) => ({ ...previous, [key]: pr }));
+    } catch (requestError: unknown) {
+      setUpgradeError(requestError instanceof Error ? requestError.message : "Could not open upgrade pull request.");
+    } finally {
+      setBusyUpgrade(null);
+    }
+  };
+
+  const refreshChecks = async (finding: DependencyFinding) => {
+    const key = findingKey(finding);
+    const pr = upgradeResults[key];
+    if (!pr) return;
+
+    setBusyUpgrade(key);
+    setUpgradeError(null);
+    try {
+      const checks = await fetchUpgradeChecks(
+        pr.target,
+        pr.pull_request_number,
+        remediationKey
+      );
+      setUpgradeChecks((previous) => ({ ...previous, [key]: checks }));
+    } catch (requestError: unknown) {
+      setUpgradeError(requestError instanceof Error ? requestError.message : "Could not read GitHub CI status.");
+    } finally {
+      setBusyUpgrade(null);
     }
   };
 
@@ -79,6 +143,29 @@ export function DependencyScanPanel() {
               <ShieldCheck className="h-4 w-4" /> No known advisories for the exact versions scanned.
             </p>
           ) : (
+            <>
+            <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-2">
+              <label className="block text-xs text-slate-400">
+                GitHub repository (owner/repository)
+                <input
+                  value={githubRepo}
+                  onChange={(event) => setGithubRepo(event.target.value)}
+                  placeholder="owner/repository"
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+                />
+              </label>
+              <label className="block text-xs text-slate-400">
+                Remediation API key (used for this session only)
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={remediationKey}
+                  onChange={(event) => setRemediationKey(event.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+                />
+              </label>
+            </div>
+            {upgradeError && <p role="alert" className="mt-3 text-sm text-red-300">{upgradeError}</p>}
             <ul className="mt-3 space-y-2">
               {result.findings.map((finding, index) => (
                 <li key={`${finding.id}-${finding.dependency}-${finding.version}-${index}`} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
@@ -98,9 +185,67 @@ export function DependencyScanPanel() {
                     {finding.manifests.join(", ")}
                     {finding.fixed_versions.length > 0 && ` · Fixed in ${finding.fixed_versions.join(", ")}`}
                   </p>
+                  {finding.ecosystem === "PyPI" &&
+                    finding.manifests.some((path) => path.toLowerCase().endsWith("requirements.txt")) &&
+                    finding.fixed_versions.length > 0 && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <label className="sr-only" htmlFor={`fixed-version-${index}`}>Select fixed version</label>
+                        <select
+                          id={`fixed-version-${index}`}
+                          value={fixedVersions[findingKey(finding)] || finding.fixed_versions[0]}
+                          onChange={(event) => setFixedVersions((previous) => ({
+                            ...previous,
+                            [findingKey(finding)]: event.target.value,
+                          }))}
+                          className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs text-slate-200"
+                        >
+                          {finding.fixed_versions.map((version) => (
+                            <option key={version} value={version}>{version}</option>
+                          ))}
+                        </select>
+                        {upgradeResults[findingKey(finding)] ? (
+                          <>
+                            <a
+                              href={upgradeResults[findingKey(finding)].pull_request_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold text-cyan-300 underline"
+                            >
+                              View PR #{upgradeResults[findingKey(finding)].pull_request_number}
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => refreshChecks(finding)}
+                              disabled={busyUpgrade === findingKey(finding)}
+                              className="rounded border border-slate-700 px-2 py-1.5 text-xs text-slate-300 disabled:opacity-50"
+                            >
+                              {busyUpgrade === findingKey(finding) ? "Checking…" : "Check CI"}
+                            </button>
+                            {upgradeChecks[findingKey(finding)] && (
+                              <span className="text-xs text-slate-400">
+                                CI: {upgradeChecks[findingKey(finding)].checks_state}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => openUpgrade(finding)}
+                            disabled={busyUpgrade === findingKey(finding)}
+                            className="rounded border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:opacity-50"
+                          >
+                            {busyUpgrade === findingKey(finding) ? "Opening PR…" : "Open upgrade PR"}
+                          </button>
+                        )}
+                      </div>
+                    )}
                 </li>
               ))}
             </ul>
+            <p className="mt-3 text-[11px] text-slate-500">
+              Automated PRs are currently supported for exact-pinned Python requirements only. CI is considered verified only after GitHub reports successful checks.
+            </p>
+            </>
           )}
         </div>
       )}

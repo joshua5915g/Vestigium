@@ -4,7 +4,9 @@ import {
   SynthesisResponse, 
   RemediationRequest, 
   RemediationResponse,
-  DependencyScanResponse
+  DependencyScanResponse,
+  UpgradePullRequestResponse,
+  UpgradeCheckResponse
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -106,3 +108,43 @@ export async function fetchDependencyScan(target: string): Promise<DependencySca
   return response.json();
 }
 
+export async function fetchUpgradePullRequest(request: {
+  target: string;
+  manifest_path: string;
+  advisory_id: string;
+  package_name: string;
+  current_version: string;
+  fixed_version: string;
+}, remediationKey: string): Promise<UpgradePullRequestResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/dependencies/upgrade-pr`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Remediation-Key": remediationKey,
+    },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+    throw new Error(errorBody.detail || `Upgrade PR request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function fetchUpgradeChecks(
+  target: string,
+  pullRequestNumber: number,
+  remediationKey: string
+): Promise<UpgradeCheckResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/dependencies/${encodeURIComponent(target.split("/")[0])}/${encodeURIComponent(target.split("/")[1])}/pull-requests/${pullRequestNumber}/checks`,
+    {
+      headers: { "X-Remediation-Key": remediationKey },
+    }
+  );
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+    throw new Error(errorBody.detail || `GitHub checks request failed: ${response.status}`);
+  }
+  return response.json();
+}

@@ -1,7 +1,9 @@
+import asyncio
 import json
 
 import pytest
 
+from app.routes import dependencies as dependency_routes
 from app.services import dependency_scanner
 
 
@@ -18,7 +20,11 @@ def test_discovers_exact_npm_and_python_versions(tmp_path):
         encoding="utf-8",
     )
     (tmp_path / "requirements.txt").write_text(
-        "requests==2.31.0\nurllib3>=2.0\n# comment\n", encoding="utf-8"
+        "requests==2.31.0\n"
+        "httpx[http2]==0.27.0 --hash=sha256:abcd\n"
+        "urllib3>=2.0\n"
+        "# comment\n",
+        encoding="utf-8",
     )
     (tmp_path / "node_modules" / "ignored").mkdir(parents=True)
     (tmp_path / "node_modules" / "ignored" / "package-lock.json").write_text(
@@ -30,6 +36,7 @@ def test_discovers_exact_npm_and_python_versions(tmp_path):
 
     assert by_name == {
         ("PyPI", "requests"): "2.31.0",
+        ("PyPI", "httpx"): "0.27.0",
         ("npm", "@scope/lib"): "1.2.3",
         ("npm", "lodash"): "4.17.20",
     }
@@ -98,3 +105,23 @@ def test_rejects_non_directory_target(tmp_path):
 
     with pytest.raises(ValueError, match="existing directory"):
         dependency_scanner.discover_dependencies(str(target))
+
+
+def test_scan_route_limits_targets_to_configured_root(tmp_path, monkeypatch):
+    monkeypatch.setenv("SCAN_ALLOWED_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        dependency_routes,
+        "scan_directory",
+        lambda path: {"target": path, "finding_count": 0},
+    )
+
+    result = asyncio.run(dependency_routes.scan_dependencies(
+        dependency_routes.DependencyScanRequest(target=".")
+    ))
+    assert result["target"] == str(tmp_path)
+
+    with pytest.raises(dependency_routes.HTTPException) as error:
+        asyncio.run(dependency_routes.scan_dependencies(
+            dependency_routes.DependencyScanRequest(target="../outside")
+        ))
+    assert error.value.status_code == 400

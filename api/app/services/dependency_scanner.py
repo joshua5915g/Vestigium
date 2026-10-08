@@ -9,6 +9,8 @@ from urllib.request import Request, urlopen
 
 
 OSV_QUERY_URL = "https://api.osv.dev/v1/querybatch"
+OSV_BATCH_SIZE = 500
+MAX_DISCOVERED_DEPENDENCIES = 5000
 IGNORED_DIRECTORIES = {
     ".git",
     ".next",
@@ -25,7 +27,8 @@ SEVERITY_ORDER = {"UNKNOWN": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
 def _parse_requirements(path: str) -> list[dict[str, str]]:
     dependencies = []
     requirement_pattern = re.compile(
-        r"^\s*([A-Za-z0-9_.-]+)\s*==\s*([A-Za-z0-9_.+-]+)(?:\s*;.*)?$"
+        r"^\s*([A-Za-z0-9_.-]+)(?:\[[A-Za-z0-9_,.-]+\])?\s*==\s*"
+        r"([A-Za-z0-9_.+-]+)(?:\s*;.*|\s+--hash=.*)?$"
     )
     with open(path, encoding="utf-8") as requirements:
         for line in requirements:
@@ -102,7 +105,7 @@ def discover_dependencies(root: str) -> list[dict[str, str]]:
                     parsed = _parse_requirements(path)
                 else:
                     continue
-            except (OSError, json.JSONDecodeError) as error:
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
                 raise ValueError(f"Could not parse dependency manifest {path}: {error}") from error
 
             for dependency in parsed:
@@ -127,17 +130,22 @@ def discover_dependencies(root: str) -> list[dict[str, str]]:
             "ecosystem": dependency["ecosystem"],
             "manifests": sorted(dependency["manifests"]),
         })
+    if len(result) > MAX_DISCOVERED_DEPENDENCIES:
+        raise ValueError(
+            f"Scan found more than {MAX_DISCOVERED_DEPENDENCIES} exact dependencies; narrow the target."
+        )
     return sorted(result, key=lambda item: (item["ecosystem"], item["name"].lower(), item["version"]))
 
 
 def _severity(vulnerability: dict[str, Any]) -> str:
-    database_severity = vulnerability.get("database_specific", {}).get("severity")
+    database_specific = vulnerability.get("database_specific")
+    database_severity = database_specific.get("severity") if isinstance(database_specific, dict) else None
     if isinstance(database_severity, str):
         normalized = database_severity.upper()
         if normalized in SEVERITY_ORDER:
             return normalized
 
-    for severity in vulnerability.get("severity", []):
+    for severity in vulnerability.get("severity") or []:
         score = severity.get("score")
         if not isinstance(score, str):
             continue
@@ -156,7 +164,7 @@ def _severity(vulnerability: dict[str, Any]) -> str:
 
 def _fixed_versions(vulnerability: dict[str, Any], package_name: str) -> list[str]:
     versions = set()
-    for affected in vulnerability.get("affected", []):
+    for affected in vulnerability.get("affected") or []:
         package = affected.get("package", {})
         if package.get("name", "").lower() != package_name.lower():
             continue
@@ -170,8 +178,8 @@ def _fixed_versions(vulnerability: dict[str, Any], package_name: str) -> list[st
 
 def query_osv(dependencies: list[dict[str, str]]) -> list[dict[str, Any]]:
     findings = []
-    for start in range(0, len(dependencies), 100):
-        batch = dependencies[start:start + 100]
+    for start in range(0, len(dependencies), OSV_BATCH_SIZE):
+        batch = dependencies[start:start + OSV_BATCH_SIZE]
         queries = [
             {
                 "package": {"name": item["name"], "ecosystem": item["ecosystem"]},
@@ -188,17 +196,17 @@ def query_osv(dependencies: list[dict[str, str]]) -> list[dict[str, Any]]:
         try:
             with urlopen(request, timeout=20) as response:
                 results = json.loads(response.read().decode("utf-8")).get("results", [])
-        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as error:
+        except (HTTPError, URLError, TimeoutError, UnicodeDecodeError, json.JSONDecodeError) as error:
             raise RuntimeError(f"OSV vulnerability query failed: {error}") from error
         if len(results) != len(batch):
             raise RuntimeError("OSV returned a result count that did not match the submitted dependency batch.")
 
         for dependency, result in zip(batch, results):
-            for vulnerability in result.get("vulns", []):
+            for vulnerability in (result or {}).get("vulns") or []:
                 findings.append({
                     "id": vulnerability.get("id", "UNKNOWN"),
                     "aliases": vulnerability.get("aliases", []),
-                    "summary": vulnerability.get("summary") or vulnerability.get("details", "").splitlines()[0],
+                    "summary": vulnerability.get("summary") or (vulnerability.get("details") or "").splitlines()[0],
                     "severity": _severity(vulnerability),
                     "dependency": dependency["name"],
                     "version": dependency["version"],

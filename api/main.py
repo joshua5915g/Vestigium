@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.analysis import router as analysis_router
 from app.routes.dependencies import router as dependencies_router
+from app.routes.upgrade_pr import router as upgrade_pr_router
 
 from contextlib import asynccontextmanager
 from graph_db import graph_db
@@ -35,6 +36,7 @@ app.add_middleware(
 )
 
 app.include_router(analysis_router)
+app.include_router(upgrade_pr_router)
 app.include_router(dependencies_router)
 
 from app.models.schema import SynthesisRequest, SynthesisResponse, RemediationRequest, RemediationResponse
