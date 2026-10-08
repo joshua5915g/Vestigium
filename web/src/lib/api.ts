@@ -3,7 +3,8 @@ import {
   SynthesisRequest, 
   SynthesisResponse, 
   RemediationRequest, 
-  RemediationResponse 
+  RemediationResponse,
+  DependencyScanResponse
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -88,4 +89,20 @@ export async function fetchAttackSteps(target: string) {
   return response.json();
 }
 
+export async function fetchDependencyScan(target: string): Promise<DependencyScanResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/dependencies/scan`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ target }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+    throw new Error(errorBody.detail || `Dependency scan failed: ${response.status}`);
+  }
+
+  return response.json();
+}
 

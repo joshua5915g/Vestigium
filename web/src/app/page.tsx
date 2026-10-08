@@ -17,6 +17,7 @@ import { RemediationModal } from "../components/RemediationModal";
 import { AttackPathStepper } from "../components/AttackPathStepper";
 import { ComplianceRadar } from "../components/ComplianceRadar";
 import { SentinelRadar } from "../components/SentinelRadar";
+import { DependencyScanPanel } from "../components/DependencyScanPanel";
 import { Footer } from "../components/Footer";
 import { fetchAnalysis } from "../lib/api";
 import { AnalysisResponse, GraphNode } from "../lib/types";
@@ -169,6 +170,7 @@ export default function VestigiumApp() {
           loading={loading}
           initialTarget={currentTarget}
         />
+        <DependencyScanPanel />
 
         {/* View Switcher Bar */}
         <div className="flex items-center justify-between mt-4 mb-2">

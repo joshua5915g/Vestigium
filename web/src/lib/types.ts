@@ -135,3 +135,29 @@ export interface AttackStepperResponse {
   steps: AttackStep[];
 }
 
+export interface DependencyFinding {
+  id: string;
+  aliases: string[];
+  summary: string;
+  severity: "UNKNOWN" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  dependency: string;
+  version: string;
+  ecosystem: string;
+  fixed_versions: string[];
+  manifests: string[];
+  source: "OSV";
+}
+
+export interface DependencyScanResponse {
+  target: string;
+  source: "OSV";
+  dependency_count: number;
+  finding_count: number;
+  dependencies: Array<{
+    name: string;
+    version: string;
+    ecosystem: string;
+    manifests: string[];
+  }>;
+  findings: DependencyFinding[];
+}
